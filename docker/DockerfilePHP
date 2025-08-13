@@ -1,0 +1,39 @@
+FROM php:8.3-apache
+ 
+# Install system dependencies and PHP extensions
+RUN apt-get update && \
+    apt-get install -y \
+    zip \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev && \
+    docker-php-ext-install zip pdo pdo_mysql mbstring bcmath gd mysqli && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+ 
+# Copy Composer
+COPY --from=composer:2.7.6 /usr/bin/composer /usr/local/bin/composer
+ 
+# Copy Apache configuration and application files
+COPY ./docker/site.conf /etc/apache2/sites-available/
+COPY . /var/www/html/
+ 
+# Configure Apache
+RUN a2dissite 000-default && \
+    a2ensite site.conf && \
+    a2enmod rewrite headers
+ 
+# Set timezone
+ENV TZ=Asia/Kolkata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
+ 
+# Remove unnecessary packages and clean up
+RUN apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+ 
+# Expose port
+EXPOSE 80
