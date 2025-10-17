@@ -27,7 +27,7 @@ class OrganizationController extends Controller
             'website' => 'nullable|max:255',
             'description' => 'nullable|string|max:1000',
             'logo' => 'nullable|image|max:2048',
-            'address' => 'nullable|string|max:255',
+'address' => 'nullable|string|max:255',
         ]);
 
         $organization = Organization::create([
@@ -41,6 +41,7 @@ class OrganizationController extends Controller
             $organization->logo = $logoPath;
             $organization->save();
         }
+
         return response()->json([
             'message' => 'Organization created successfully'
         ], 201);
